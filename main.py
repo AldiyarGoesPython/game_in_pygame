@@ -32,14 +32,19 @@ vel_x = base_vel
 vel_y = base_vel
 max_vel = 4
 change = 0.1
-
+start_ticks = pygame.time.get_ticks()
 while True:
     display.fill((0, 0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    
+    seconds = (pygame.time.get_ticks() - start_ticks) / 1000
+    if seconds>30:
+        base_vel +=0.5
+        max_vel +=1
+        change +=0.05
+        start_ticks = pygame.time.get_ticks()
     keys = pygame.key.get_pressed()  # checking pressed keys
     rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel_x
     rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel_y
