@@ -3,7 +3,7 @@ import random
 import sys
 
 pygame.init()
-display = pygame.display.set_mode((900, 900))
+display = pygame.display.set_mode((1200, 800))
 pygame.display.set_caption('NO ESCAPE')
 clock = pygame.time.Clock()
 fps = 120
@@ -61,6 +61,6 @@ while True:
     rect.centerx = rect.centerx % display.get_width()
     rect.centery = rect.centery % display.get_height()
 
-    pygame.draw.rect(display, PINK, rect)
+    pygame.draw.circle(display, PINK, rect.center, 10)
     pygame.display.update()
     clock.tick(fps)
