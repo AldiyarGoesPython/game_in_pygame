@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+
 pygame.init()
 display = pygame.display.set_mode((900, 900))
 pygame.display.set_caption('NO ESCAPE')
@@ -13,37 +14,48 @@ LIGHT_BLUE = (64, 128, 255)
 GREEN = (0, 200, 64)
 YELLOW = (225, 225, 0)
 PINK = (230, 50, 230)
-x, y, x_c, y_c = 0, 0, 0, 0
+x, y = 450, 450
 
-class Player():
-    pass
+
 class Rocket():
     pass
+
+
 class Laser():
     pass
+
+
+rect = pygame.Rect(0, 0, 20, 20)
+rect.center = display.get_rect().center
+base_vel = 1.5
+vel_x = base_vel
+vel_y = base_vel
+max_vel = 4
+change = 0.1
+
 while True:
     display.fill((0, 0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                if x_c > -5:
-                    x_c -= 1
-            elif event.key == pygame.K_RIGHT:
-                if x_c < 5:
-                    x_c += 1
-            elif event.key == pygame.K_UP:
-                if y_c > -5:
-                    y_c -= 1
-            elif event.key == pygame.K_DOWN:
-                if y_c < 5:
-                    y_c += 1
-    if 880 > x > 0:
-        x += x_c
-    if 880 > y > 0:
-        y += y_c
-    pygame.draw.rect(display, PINK, (x, y, 20, 20))
+    
+    keys = pygame.key.get_pressed()  # checking pressed keys
+    rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel_x
+    rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel_y
+    if (keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]) and vel_x < max_vel:
+        vel_x += change
+    else:
+        if vel_x > base_vel:
+            vel_x -= change
+    if (keys[pygame.K_DOWN] or keys[pygame.K_UP]) and vel_y < max_vel:
+        vel_y += change
+    else:
+        if vel_y > base_vel:
+            vel_y -= change
+    rect.centerx = rect.centerx % display.get_width()
+    rect.centery = rect.centery % display.get_height()
+
+    pygame.draw.rect(display, PINK, rect)
     pygame.display.update()
     clock.tick(fps)
