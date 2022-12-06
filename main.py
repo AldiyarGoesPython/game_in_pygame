@@ -19,14 +19,6 @@ x, y = 450, 450
 font = pygame.font.SysFont('Arial', 20)
 
 
-class Rocket():
-    pass
-
-
-class Laser():
-    pass
-
-
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
         self.x = x
@@ -53,7 +45,6 @@ class Button():
     def process(self):
 
         mousePos = pygame.mouse.get_pos()
-
         self.buttonSurface.fill(self.fillColors['normal'])
         if self.buttonRect.collidepoint(mousePos):
             self.buttonSurface.fill(self.fillColors['hover'])
@@ -63,8 +54,12 @@ class Button():
                 if self.onePress:
                     self.onclickFunction()
 
-            else:
-                self.alreadyPressed = False
+                elif not self.alreadyPressed:
+                    self.onclickFunction()
+                    self.alreadyPressed = True
+
+                else:
+                    self.alreadyPressed = False
 
         self.buttonSurface.blit(self.buttonSurf, [
             self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
@@ -74,12 +69,12 @@ class Button():
 
 
 objects = []
-go_back_button = Button(20, 20, 100, 100, 'Back to menu')
-creator_button = Button(20, 20, 100, 100, 'About creator')
-start_button = Button(20, 20, 100, 100, 'Start the game')
+check = False
 
 
 def game():
+    check = False
+    objects.clear()
     rect = pygame.Rect(0, 0, 20, 20)
     rect.center = display.get_rect().center
     base_vel = 1.5
@@ -124,3 +119,56 @@ def game():
         collide = rect.colliderect(kill)
         if collide:
             break
+    start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
+    go_back_button = Button(500, 300, 200, 100, 'Back to menu', go_back, True)
+
+
+
+def draw_text(text, size, color, x, y):
+    txt_font = 'Slaytanic.ttf'
+    txt_font = pygame.font.Font(txt_font, size)
+    text_surface = txt_font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x, y)
+    display.blit(text_surface, text_rect)
+
+
+def color_change(color, dir):
+    for i in range(3):
+        color[i] += col_spd*dir[i]
+        if color[i] >= 255 or color[i] <= 0:
+            dir[i] *= -1
+
+def about():
+    objects.pop()
+    objects.pop()
+    go_back_button = Button(500, 300, 200, 100, 'Back to menu', go_back, True)
+    global check
+    check = True
+def go_back():
+    objects.clear()
+    global check
+    check = False
+    creator_button = Button(500, 200, 200, 100, 'About creator', about, True)
+    start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
+
+
+col_spd = 1
+col_dir = [1, 1, 1]
+def_col = [0, 128, 25]
+creator_button = Button(500, 200, 200, 100, 'About creator', about, True)
+start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
+
+while True:
+    display.fill((0, 0, 0))
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+    for object in objects:
+        object.process()
+    if check:
+        draw_text('Author - NIS student, Amanov Aldiyar', 40, def_col, 600, 50)
+        color_change(def_col, col_dir)
+    pygame.display.update()
+    clock.tick(fps)
