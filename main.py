@@ -25,8 +25,8 @@ class Bullet:
         self.x = random.randint(0, 1200)
         self.end = random.randint(0, 1200)
         self.y = random.choice([0, 800])
-        self.change_y = (800 - 2*self.y)/200
-        self.change_x = (self.end - self.x)/200
+        self.change_y = (800 - 2 * self.y) / 200
+        self.change_x = (self.end - self.x) / 200
 
 
 class Button():
@@ -81,9 +81,13 @@ class Button():
 objects = []
 check = False
 over = False
+set_check = False
+mus_theme = '08cb5660-76e7-11ed-bc0a-eb032856cba0.wav'
 
 
 def game():
+    pygame.mixer.music.load(mus_theme)
+    pygame.mixer.music.play(-1)
     global over, collide
     over = False
     global check
@@ -121,7 +125,7 @@ def game():
             enemy_count += 1
             shoot = Bullet()
             bullets.append(shoot)
-            killers.append(pygame.Rect(bullets[enemy_count-1].x, bullets[enemy_count-1].y, 30, 30))
+            killers.append(pygame.Rect(bullets[enemy_count - 1].x, bullets[enemy_count - 1].y, 30, 30))
             start_ticks = pygame.time.get_ticks()
         keys = pygame.key.get_pressed()  # checking pressed keys
         rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel_x
@@ -155,6 +159,7 @@ def game():
                 bullets[i] = shoot
                 killers[i] = pygame.Rect(bullets[i].x, bullets[i].y, 30, 30)
         if collide:
+            pygame.mixer.music.stop()
             over = True
             break
     start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
@@ -178,22 +183,49 @@ def color_change(color, dir):
 
 
 def about():
-    objects.pop()
-    objects.pop()
+    objects.clear()
     go_back_button = Button(500, 300, 200, 100, 'Back to menu', go_back, True)
     global check
     check = True
 
 
-def go_back():
-    global over
-    over = False
+def setting():
     objects.clear()
+    global set_check
+    set_check = True
+    go_back_button = Button(500, 500, 200, 100, 'Back to menu', go_back, True)
+    music1 = Button(800, 300, 200, 100, "deadwood", opt1, True)
+    music2 = Button(500, 300, 200, 100, 'rumble', opt2, True)
+    music3 = Button(200, 300, 200, 100, 'boss', opt3, True)
+
+
+def opt1():
+    global mus_theme
+    mus_theme = '08cb5660-76e7-11ed-bc0a-eb032856cba0.wav'
+
+
+def opt2():
+    global mus_theme
+    mus_theme = 'a9b13060-76ea-11ed-b064-95ee47d4ceba.wav'
+
+
+def opt3():
+    global mus_theme
+    mus_theme = '2bcb9db0-76eb-11ed-bbf7-8bea163bb517.wav'
+
+
+def go_back():
     global check
     check = False
+    global over
+    over = False
+    global set_check
+    set_check = False
+    objects.clear()
+    settings = Button(500, 350, 200, 100, 'settings', setting, True)
     creator_button = Button(500, 200, 200, 100, 'About creator', about, True)
     start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
-    exitter = Button(500, 350, 200, 100, 'Exit', exit_button, True)
+    exitter = Button(500, 700, 200, 100, 'Exit', exit_button, True)
 
 
 def exit_button():
@@ -206,8 +238,8 @@ col_dir = [1, 1, 1]
 def_col = [0, 128, 25]
 creator_button = Button(500, 200, 200, 100, 'About creator', about, True)
 start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
-exitter = Button(500, 350, 200, 100, 'Exit', exit_button, True)
-
+exitter = Button(500, 700, 200, 100, 'Exit', exit_button, True)
+settings = Button(500, 350, 200, 100, 'settings', setting, True)
 while True:
     display.fill((0, 0, 0))
     for event in pygame.event.get():
@@ -217,9 +249,11 @@ while True:
     for object in objects:
         object.process()
     if check:
-        draw_text('Author - NIS student, Amanov Aldiyar', 40, def_col, 600, 50)
+        draw_text('Author - N I S student, Amanov Aldiyar', 40, def_col, 600, 200)
         color_change(def_col, col_dir)
     if over:
-        draw_text('Game Over, You Died', 40, RED, 600, 225)
+        draw_text('GAME OVER, YOU DIED', 40, RED, 600, 225)
+    if set_check:
+        draw_text('CHOOSE SONG', 40, YELLOW, 600, 150)
     pygame.display.update()
     clock.tick(fps)
