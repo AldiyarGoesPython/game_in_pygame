@@ -93,7 +93,7 @@ def game():
     global check
     check = False
     objects.clear()
-    rect = pygame.Rect(0, 0, 20, 20)
+    rect = pygame.Rect(0, 0, 10, 10)
     rect.center = display.get_rect().center
     base_vel = 2
     enemy_vel = 1
