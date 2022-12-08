@@ -5,6 +5,7 @@ import sys
 pygame.init()
 display = pygame.display.set_mode((1200, 800))
 pygame.display.set_caption('NO ESCAPE')
+pygame.display.set_icon(pygame.image.load('recruit-dance.gif'))
 clock = pygame.time.Clock()
 fps = 120
 RED = (255, 0, 0)
@@ -70,9 +71,12 @@ class Button():
 
 objects = []
 check = False
-
+over = False
 
 def game():
+    global over
+    over = False
+    global check
     check = False
     objects.clear()
     rect = pygame.Rect(0, 0, 20, 20)
@@ -118,6 +122,7 @@ def game():
         clock.tick(fps)
         collide = rect.colliderect(kill)
         if collide:
+            over = True
             break
     start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
     go_back_button = Button(500, 300, 200, 100, 'Back to menu', go_back, True)
@@ -146,6 +151,8 @@ def about():
     global check
     check = True
 def go_back():
+    global over
+    over = False
     objects.clear()
     global check
     check = False
@@ -170,5 +177,7 @@ while True:
     if check:
         draw_text('Author - NIS student, Amanov Aldiyar', 40, def_col, 600, 50)
         color_change(def_col, col_dir)
+    if over:
+        draw_text('Game Over, You Died', 40, RED, 600, 225)
     pygame.display.update()
     clock.tick(fps)
