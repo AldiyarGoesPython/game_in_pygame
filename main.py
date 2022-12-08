@@ -84,41 +84,44 @@ over = False
 
 
 def game():
-    global over
+    global over, collide
     over = False
     global check
     check = False
     objects.clear()
     rect = pygame.Rect(0, 0, 20, 20)
     rect.center = display.get_rect().center
-    base_vel = 1.5
+    base_vel = 2
     enemy_vel = 1
+    enemy_count = 4
     vel_x = base_vel
     vel_y = base_vel
-    max_vel = 4
-    change = 0.02
+    max_vel = 5
+    change = 0.03
     start_ticks = pygame.time.get_ticks()
-    shoot = Bullet()
-    kill = pygame.Rect(shoot.x, shoot.y, 30, 30)
-    pygame.time.wait(20)
-    shoot1 = Bullet()
-    kill1 = pygame.Rect(shoot1.x, shoot1.y, 30, 30)
-    pygame.time.wait(20)
-    shoot2 = Bullet()
-    kill2 = pygame.Rect(shoot2.x, shoot2.y, 30, 30)
+    bullets = []
+    killers = []
+    for i in range(enemy_count):
+        shoot = Bullet()
+        bullets.append(shoot)
+        killers.append(pygame.Rect(bullets[i].x, bullets[i].y, 30, 30))
 
     while True:
-        display.fill((0, 0, 0))
+        display.fill((255, 255, 255))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
         seconds = (pygame.time.get_ticks() - start_ticks) / 1000
-        if seconds > 15:
+        if seconds > 12:
             base_vel += 0.5
             max_vel += 1
             change += 0.01
             enemy_vel += 0.1
+            enemy_count += 1
+            shoot = Bullet()
+            bullets.append(shoot)
+            killers.append(pygame.Rect(bullets[enemy_count-1].x, bullets[enemy_count-1].y, 30, 30))
             start_ticks = pygame.time.get_ticks()
         keys = pygame.key.get_pressed()  # checking pressed keys
         rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel_x
@@ -135,28 +138,22 @@ def game():
                 vel_y -= change
         rect.centerx = rect.centerx % display.get_width()
         rect.centery = rect.centery % display.get_height()
-        kill.x += shoot.change_x * enemy_vel
-        kill.y += shoot.change_y * enemy_vel
-        kill1.x += shoot1.change_x * enemy_vel
-        kill1.y += shoot1.change_y * enemy_vel
-        kill2.x += shoot2.change_x * enemy_vel
-        kill2.y += shoot2.change_y * enemy_vel
-        pygame.draw.circle(display, RED, kill.center, 10)
-        pygame.draw.circle(display, RED, kill1.center, 10)
-        pygame.draw.circle(display, RED, kill2.center, 10)
+        for i in range(enemy_count):
+            killers[i].x += bullets[i].change_x * enemy_vel
+            killers[i].y += bullets[i].change_y * enemy_vel
+            pygame.draw.circle(display, RED, killers[i].center, 10)
         pygame.draw.circle(display, PINK, rect.center, 10, 2)
         pygame.display.update()
         clock.tick(fps)
-        collide = rect.colliderect(kill)
-        if kill.y < 0 or kill.y > 800:
-            shoot = Bullet()
-            kill = pygame.Rect(shoot.x, shoot.y, 50, 50)
-        if kill1.y < 0 or kill1.y > 800:
-            shoot1 = Bullet()
-            kill1 = pygame.Rect(shoot1.x, shoot1.y, 50, 50)
-        if kill2.y < 0 or kill2.y > 800:
-            shoot2 = Bullet()
-            kill2 = pygame.Rect(shoot2.x, shoot2.y, 50, 50)
+        for i in killers:
+            collide = rect.colliderect(i)
+            if collide:
+                break
+        for i in range(enemy_count):
+            if not 0 < killers[i].y < 800:
+                shoot = Bullet()
+                bullets[i] = shoot
+                killers[i] = pygame.Rect(bullets[i].x, bullets[i].y, 30, 30)
         if collide:
             over = True
             break
