@@ -20,6 +20,15 @@ x, y = 450, 450
 font = pygame.font.SysFont('Arial', 20)
 
 
+class Bullet:
+    def __init__(self):
+        self.x = random.randint(0, 1200)
+        self.end = random.randint(0, 1200)
+        self.y = random.choice([0, 800])
+        self.change_y = (800 - 2*self.y)/200
+        self.change_x = (self.end - self.x)/200
+
+
 class Button():
     def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
         self.x = x
@@ -73,6 +82,7 @@ objects = []
 check = False
 over = False
 
+
 def game():
     global over
     over = False
@@ -82,12 +92,20 @@ def game():
     rect = pygame.Rect(0, 0, 20, 20)
     rect.center = display.get_rect().center
     base_vel = 1.5
+    enemy_vel = 1
     vel_x = base_vel
     vel_y = base_vel
     max_vel = 4
     change = 0.02
     start_ticks = pygame.time.get_ticks()
-    kill = pygame.Rect(20, 20, 50, 50)
+    shoot = Bullet()
+    kill = pygame.Rect(shoot.x, shoot.y, 30, 30)
+    pygame.time.wait(20)
+    shoot1 = Bullet()
+    kill1 = pygame.Rect(shoot1.x, shoot1.y, 30, 30)
+    pygame.time.wait(20)
+    shoot2 = Bullet()
+    kill2 = pygame.Rect(shoot2.x, shoot2.y, 30, 30)
 
     while True:
         display.fill((0, 0, 0))
@@ -100,6 +118,7 @@ def game():
             base_vel += 0.5
             max_vel += 1
             change += 0.01
+            enemy_vel += 0.1
             start_ticks = pygame.time.get_ticks()
         keys = pygame.key.get_pressed()  # checking pressed keys
         rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel_x
@@ -116,17 +135,33 @@ def game():
                 vel_y -= change
         rect.centerx = rect.centerx % display.get_width()
         rect.centery = rect.centery % display.get_height()
-        pygame.draw.rect(display, RED, kill, 10, 5)
-        pygame.draw.circle(display, PINK, rect.center, 10)
+        kill.x += shoot.change_x * enemy_vel
+        kill.y += shoot.change_y * enemy_vel
+        kill1.x += shoot1.change_x * enemy_vel
+        kill1.y += shoot1.change_y * enemy_vel
+        kill2.x += shoot2.change_x * enemy_vel
+        kill2.y += shoot2.change_y * enemy_vel
+        pygame.draw.circle(display, RED, kill.center, 10)
+        pygame.draw.circle(display, RED, kill1.center, 10)
+        pygame.draw.circle(display, RED, kill2.center, 10)
+        pygame.draw.circle(display, PINK, rect.center, 10, 2)
         pygame.display.update()
         clock.tick(fps)
         collide = rect.colliderect(kill)
+        if kill.y < 0 or kill.y > 800:
+            shoot = Bullet()
+            kill = pygame.Rect(shoot.x, shoot.y, 50, 50)
+        if kill1.y < 0 or kill1.y > 800:
+            shoot1 = Bullet()
+            kill1 = pygame.Rect(shoot1.x, shoot1.y, 50, 50)
+        if kill2.y < 0 or kill2.y > 800:
+            shoot2 = Bullet()
+            kill2 = pygame.Rect(shoot2.x, shoot2.y, 50, 50)
         if collide:
             over = True
             break
     start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
     go_back_button = Button(500, 300, 200, 100, 'Back to menu', go_back, True)
-
 
 
 def draw_text(text, size, color, x, y):
@@ -140,9 +175,10 @@ def draw_text(text, size, color, x, y):
 
 def color_change(color, dir):
     for i in range(3):
-        color[i] += col_spd*dir[i]
+        color[i] += col_spd * dir[i]
         if color[i] >= 255 or color[i] <= 0:
             dir[i] *= -1
+
 
 def about():
     objects.pop()
@@ -150,6 +186,8 @@ def about():
     go_back_button = Button(500, 300, 200, 100, 'Back to menu', go_back, True)
     global check
     check = True
+
+
 def go_back():
     global over
     over = False
@@ -158,6 +196,12 @@ def go_back():
     check = False
     creator_button = Button(500, 200, 200, 100, 'About creator', about, True)
     start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
+    exitter = Button(500, 350, 200, 100, 'Exit', exit_button, True)
+
+
+def exit_button():
+    pygame.quit()
+    sys.exit()
 
 
 col_spd = 1
@@ -165,6 +209,7 @@ col_dir = [1, 1, 1]
 def_col = [0, 128, 25]
 creator_button = Button(500, 200, 200, 100, 'About creator', about, True)
 start_button = Button(500, 50, 200, 100, 'Start the game', game, True)
+exitter = Button(500, 350, 200, 100, 'Exit', exit_button, True)
 
 while True:
     display.fill((0, 0, 0))
